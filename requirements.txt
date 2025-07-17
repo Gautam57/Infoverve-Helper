@@ -2,3 +2,6 @@ qdrant-client==1.12.0 # This Verson is compatible with the latest Qdrant API
 python-dotenv
 requests
 groq
+langchain
+langchain-community
+langchain-google-genai

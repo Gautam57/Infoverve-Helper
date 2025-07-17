@@ -1,5 +1,23 @@
 from groq import Groq
 from qdrant_client import QdrantClient
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain.vectorstores import Qdrant
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv()  # Loads variables from .env into environment
+
+# Retrieve API key (optional: validate it's loaded)
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+if not GOOGLE_API_KEY:
+    raise ValueError("GOOGLE_API_KEY not found in environment!")
+
+embedding_model = GoogleGenerativeAIEmbeddings(
+    model="models/embedding-001",  # Google's 768-d embedding model
+    task_type="retrieval_query"
+)
+
 
 # Connect to Qdrant — update host/port if you're not running locally
 client = QdrantClient(host="ai.infoveave.cloud", port=6333)
@@ -13,41 +31,16 @@ for collection in collections.collections:
     print(f"Collection Name: {collection_name}")
 
 
-info = client.get_collection(collection_name=collection_name)
-print(info.dict())
-
-# Scroll through the collection
-response = client.scroll(
-    collection_name=collection_name,
-    with_payload=True,
-    with_vectors=True,   # Set to True if you want the actual embedding vectors too
-    limit=1             # Number of documents to fetch per request
+# Connect to existing collection
+vectorstore = Qdrant(
+    client=client,
+    collection_name=collection_name,  # Replace with your collection name
+    embeddings=embedding_model,
 )
-print(f"Total points in collection '{collection_name}': {response[1]}")  # response[1] is the total number of points
-# Access the points (documents)
-points = response[0]  # response is a tuple: (List[records], next_offset)
-print(f"Number of points fetched: {len(points)}")
-for point in points:
-    print("ID:", point.id)
-    print("Payload:", point.payload)
-    print("Vector:", point.vector)  # Only if with_vectors=True
-    print("-----")
 
-# client = Groq()
-# completion = client.chat.completions.create(
-#     model="gemma2-9b-it",
-#     messages=[
-#       {
-#         "role": "user",
-#         "content": ""
-#       }
-#     ],
-#     temperature=1,
-#     max_completion_tokens=1024,
-#     top_p=1,
-#     stream=True,
-#     stop=None,
-# )
+query = "How to create a Data Source in infoverve?"
 
-# for chunk in completion:
-#     print(chunk.choices[0].delta.content or "", end="")
+results = vectorstore.similarity_search(query, k=5)
+
+for doc in results:
+    print(doc.page_content)
