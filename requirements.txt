@@ -5,3 +5,4 @@ groq
 langchain
 langchain-community
 langchain-google-genai
+langchain-qdrant

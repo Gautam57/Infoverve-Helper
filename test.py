@@ -1,3 +1,4 @@
+from qdrant_client import QdrantClient
 # Connect to Qdrant — update host/port if you're not running locally
 client = QdrantClient(host="ai.infoveave.cloud", port=6333)
 
@@ -23,13 +24,22 @@ response = client.scroll(
 print(f"Total points in collection '{collection_name}': {response[1]}")  # response[1] is the total number of points
 # Access the points (documents)
 points = response[0]  # response is a tuple: (List[records], next_offset)
-print(f"Number of points fetched: {len(points)}")
-for point in points:
-    print("ID:", point.id)
-    print("Payload:", point.payload)
-    print("Vector:", point.vector)  # Only if with_vectors=True
-    print("-----")
+print(f"Number of points fetched: {points}")
+# for point in points:
+#     print("ID:", point.id)
+#     print("Payload:", point.payload)
+#     print("Vector:", point.vector)  # Only if with_vectors=True
+#     print("-----")
+from qdrant_client.http.models import Filter, FieldCondition, MatchValue
 
+points = client.search(
+    collection_name="HelpDocuments",
+    query_vector=embedding_model.embed_query("How to create a Data Source?"),
+    limit=1,
+    with_payload=True
+)
+
+print(points[0].payload)
 # client = Groq()
 # completion = client.chat.completions.create(
 #     model="gemma2-9b-it",
