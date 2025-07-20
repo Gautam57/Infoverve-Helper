@@ -23,7 +23,7 @@ embedding_model = GoogleGenerativeAIEmbeddings(
     google_api_key=GOOGLE_API_KEY
 )
 
-query = "How to create a Data Source in infoverve?"
+query = "steps to create a data source?"
 query_vector = embedding_model.embed_query(query)
 
 # Connect to Qdrant — update host/port if you're not running locally
@@ -34,8 +34,10 @@ collections = client.get_collections()
 
 # Print collection names
 for collection in collections.collections:
-    collection_name = collection.name
-    print(f"Collection Name: {collection_name}")
+    if collection.name == "infoverve_helper_collection":
+        print(f"Collection Name: {collection.name}")
+        collection_name = collection.name
+        break
 
 results = client.search(
     collection_name=collection_name,
@@ -45,24 +47,38 @@ results = client.search(
 )
 
 docs = [
-    Document(
-        page_content=record.payload.get("FullText", ""),  # use stored text field
-        metadata={
-            "id": record.id,
-            "title": record.payload.get("Title", ""),
-            "url": record.payload.get("Url", ""),
-            "description": record.payload.get("Description", ""),
-            "module": record.payload.get("Module", "")
-        }
-    )
+    {
+        "document": Document(
+            page_content=record.payload.get("content", ""),
+            metadata={
+                "id": record.id,
+                "title": record.payload.get("title", ""),
+                "url": record.payload.get("url", ""),
+                "section": record.payload.get("section", ""),
+                "terminologies": record.payload.get("terminologies", []),
+                "char_count": record.payload.get("char_count", 0),
+                "word_count": record.payload.get("word_count", 0),
+                "chunk_index": record.payload.get("chunk_index", 0)
+            }
+        ),
+        "score": record.score
+    }
     for record in results
 ]
+
 print(f"Found {len(docs)} documents matching the query.")
-# Use docs as usual
-for doc in docs:
-    print(doc.page_content)
-    print(doc.metadata)
-    print("-----")
+for item in docs:
+    if item["score"] < 0.1:
+        continue
+    else:
+        doc = item["document"]
+        score = item["score"]
+        print(f"Score: {score:.4f}")
+        print(doc.page_content)
+        print(doc.metadata)
+        print("-----")
+
+
 # # Connect to existing collection
 # vectorstore = QdrantVectorStore(
 #     client=client,

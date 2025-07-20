@@ -6,3 +6,8 @@ langchain
 langchain-community
 langchain-google-genai
 langchain-qdrant
+selenium
+beautifulsoup4
+tqdm
+pydantic
+rich
