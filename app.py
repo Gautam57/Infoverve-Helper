@@ -1,7 +1,10 @@
 import os
 from dotenv import load_dotenv
 from groq import Groq
+
 from qdrant_client import QdrantClient
+from qdrant_client.models import Filter, FieldCondition, MatchValue
+
 from langchain_qdrant import QdrantVectorStore
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain.schema import Document
@@ -23,7 +26,7 @@ embedding_model = GoogleGenerativeAIEmbeddings(
     google_api_key=GOOGLE_API_KEY
 )
 
-query = "steps to create a data source?"
+query = "Steps to create a Data Source in Infoverve using UI?"
 query_vector = embedding_model.embed_query(query)
 
 # Connect to Qdrant — update host/port if you're not running locally
@@ -44,6 +47,18 @@ results = client.search(
     query_vector=query_vector,
     limit=5,
     with_payload=True
+    # query_filter=Filter(
+    #     must=[
+    #         FieldCondition(
+    #             key="section",
+    #             match=MatchValue(value="studio")
+    #         ),
+    #         FieldCondition(
+    #             key="terminologies",
+    #             match=MatchValue(value="Datasources")
+    #         )
+    #     ]
+    # )
 )
 
 docs = [

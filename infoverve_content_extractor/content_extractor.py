@@ -5,12 +5,14 @@ from bs4 import BeautifulSoup
 import time
 import json
 import re
+from tqdm import tqdm
 
 # Setup headless browser
 options = Options()
 options.headless = True
 driver = webdriver.Chrome(options=options)
 
+Required_Info = []
 
 glossary_url = "https://infoveave-help.pages.dev/introduction-to-infoveave/infoveave-terminologies/"
 driver.get(glossary_url)
@@ -41,6 +43,17 @@ top_level_pattern = r"^(/[^/]+/)"
 top_level_paths = set(re.match(top_level_pattern, url).group(1) for url in all_links if re.match(top_level_pattern, url))
 print("Top-level paths found: ", top_level_paths)
 
+cleaned_paths = {
+    re.sub(r'-v\d+$', '', path.strip('/'))  # strip slashes, remove -vN
+    for path in top_level_paths
+}
+
+print(cleaned_paths)
+
+Required_Info.append({
+    "terminologies": glossaries,
+    "sections": list(cleaned_paths)
+})
 
 base_url = "https://infoveave-help.pages.dev/introduction-to-infoveave/getting-started/"
 
@@ -50,6 +63,9 @@ to_visit = set([base_url])
 # List to hold all results
 result_data = []
 counter = 0
+
+pbar = tqdm(desc="Scraping pages")
+
 while sorted(to_visit):
     current_url = to_visit.pop()
     if current_url in visited_urls:
@@ -78,7 +94,7 @@ while sorted(to_visit):
         for div in soup.find_all(attrs={'class': ['sidebar', 'toc', 'table-of-contents']}):
             div.decompose()
 
-        text = soup.get_text(separator=' ', strip=True)
+        text = soup.get_text(separator='\n', strip=True)
         parsed = urlparse(current_url)
         path = parsed.path.strip("/")  # "automation-v8/activities/clean-cache"
         if path.split("/")[-1] == "":
@@ -113,14 +129,19 @@ while sorted(to_visit):
             "content": text
         })
         counter +=1
+        pbar.update(1)
     except Exception as e:
         print(f"Error accessing {current_url}: {e}")
+        pbar.update(1)
 
 driver.quit()
 
 # Save to JSON file
 with open("infoverve_content_extractor/data/infoveave_help_data.json", "w", encoding="utf-8") as f:
     json.dump(result_data, f, ensure_ascii=False, indent=2)
+
+with open("infoverve_content_extractor/data/infoveave_sections_and_terms.json", "w", encoding="utf-8") as f:
+    json.dump(Required_Info, f, ensure_ascii=False, indent=2)
 
 # Convert to list
 unique_url_list = list(visited_urls)

@@ -11,3 +11,5 @@ beautifulsoup4
 tqdm
 pydantic
 rich
+unstructured
+git+https://github.com/brandonstarxel/chunking_evaluation.git
