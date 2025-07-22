@@ -24,7 +24,9 @@ embedding_model = GoogleGenerativeAIEmbeddings(
     google_api_key=GOOGLE_API_KEY
 )
 
-query = "I need to create a workflow where I initially use the 'Execute API' to get a response and create a data source from it. Then, I want to perform calculations on that data. How do I create this flow?"
+query = "I need to create a workflow where I initially use the 'Execute API' to get a response and create a data source from it.Then, I want to perform calculations on that data. How do I create this flow?"
+# "How do I create a data source in Infoverve?"
+# "I need to create a workflow where I initially use the 'Execute API' to get a response and create a data source from it. Then, I want to perform calculations on that data. How do I create this flow?"
 
 # "Steps to create a Data Source in Infoverve using UI?"
 query_vector = embedding_model.embed_query(query)
@@ -37,7 +39,7 @@ collections = client.get_collections()
 
 # Print collection names
 for collection in collections.collections:
-    if collection.name == "infoverve_helper_collection":
+    if collection.name == "infoverve_helper_docs":
         print(f"Collection Name: {collection.name}")
         collection_name = collection.name
         break
@@ -46,25 +48,25 @@ results = client.search(
     collection_name=collection_name,
     query_vector=query_vector,
     limit=5,
-    with_payload=True,
-        query_filter=Filter(
-        must=[
-            FieldCondition(
-                key="section",
-                match=MatchValue(value="studio")
-            ),
-            FieldCondition(
-                key="terminologies",
-                match=MatchValue(value="Datasources")
-            )
-        ]
-    )
+    with_payload=True
+    #     query_filter=Filter(
+    #     must=[
+    #         FieldCondition(
+    #             key="section",
+    #             match=MatchValue(value="studio")
+    #         ),
+    #         FieldCondition(
+    #             key="terminologies",
+    #             match=MatchValue(value="Datasources")
+    #         )
+    #     ]
+    # )
 )
 
 docs = [
     {
         "document": Document(
-            page_content=record.payload.get("content", ""),
+            page_content=record.payload.get("page_content", ""),
             metadata={
                 "id": record.id,
                 "title": record.payload.get("title", ""),

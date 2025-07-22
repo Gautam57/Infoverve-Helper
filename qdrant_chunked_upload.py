@@ -5,7 +5,7 @@ from tqdm import tqdm
 from dotenv import load_dotenv
 
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from chunking_evaluation.chunking import ClusterSemanticChunker
 from langchain.schema import Document
 from langchain.vectorstores import Qdrant
 
@@ -18,7 +18,7 @@ if not GOOGLE_API_KEY:
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 # --- Config ---
-JSON_FILE = "infoverve_content_extractor\data\infoveave_help_data.json"
+JSON_FILE = "infoverve_content_extractor/data/infoveave_help_data.json"
 COLLECTION_NAME = "infoverve_helper_docs"
 QDRANT_HOST = "ai.infoveave.cloud"
 QDRANT_PORT = 6333
@@ -37,10 +37,12 @@ embedding_model = GoogleGenerativeAIEmbeddings(
 )
 
 # --- Initialize Chunker ---
-text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=CHUNK_SIZE,
-    chunk_overlap=CHUNK_OVERLAP,
-    separators=["\n\n", "\n", ".", " ", ""]
+def count_words(text):
+    return len(text.split())
+text_splitter = ClusterSemanticChunker(
+    embedding_function=embedding_model.embed_documents,
+    max_chunk_size=500,       # tokens
+    length_function=count_words       # or a custom token counter
 )
 
 # --- Prepare Documents ---

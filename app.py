@@ -50,7 +50,9 @@ vectorstore = QdrantVectorStore(
     embedding=embedding_model
 )
 
-query = "How do I create a data source in Infoverve?"
+query = 'I want to create a workflow that uses the "Execute API" activity to retrieve data from an API and then create a data source from the response. After that, I want to perform calculations on the data in the newly created data source. Can you guide me on how to set up this workflow in Infoveave, including:* **Connecting the "Execute API" activity to a data source creation activity.*** **Adding activities for calculations on the data from the created data source.*** **Linking these activities in the correct order to achieve the desired flow.**'
+# "I need to create a workflow where I initially use the 'Execute API' to get a response and create a data source from it.Then, I want to perform calculations on that data. How do I create this flow?"
+# "How do I create a data source in Infoverve?"
 docs = vectorstore.similarity_search_with_score(
     query=query,
     k=10
