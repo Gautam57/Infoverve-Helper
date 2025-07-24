@@ -13,3 +13,5 @@ pydantic
 rich
 unstructured
 git+https://github.com/brandonstarxel/chunking_evaluation.git
+numpy
+scikit-learn
