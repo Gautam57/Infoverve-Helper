@@ -15,10 +15,13 @@ from langchain_community.vectorstores import Qdrant
 
 from qdrant_client import QdrantClient,models
 from qdrant_client.models import VectorParams, Distance, PointStruct,SparseVectorParams
+from rank_bm25 import BM25Okapi
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from exception.exception import CustomException
-from exception.logger import logging
+from scripts.exception import CustomException
+from scripts.logger import logging, setup_logger
+
+setup_logger(__file__)
 
 load_dotenv()
 
@@ -30,7 +33,7 @@ logging.info("GOOGLE_API_KEY loaded.")
 os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 # --- Config ---
-JSON_FILE = "infoverve_content_extractor/data/infoveave_help_data.json"
+JSON_FILE = "data/infoverve_content_extractor/infoveave_help_data.json"
 COLLECTION_NAME = "infoverve_helper_docs_hybrid"
 QDRANT_HOST = "ai.infoveave.cloud"
 QDRANT_PORT = 6333
@@ -83,15 +86,40 @@ for page in tqdm(all_pages):
     all_chunks.extend(text_splitter.split_text(page.get("content", "")))
 logging.info(f"Total chunks for TF-IDF: {len(all_chunks)}")
 
-tfidf = TfidfVectorizer()
-tfidf.fit(all_chunks)
-logging.info("TF-IDF model fitted.")
+# tfidf = TfidfVectorizer()
+# tfidf.fit(all_chunks)
+# logging.info("TF-IDF model fitted.")
 
-def sparse_vectorizer(text):
-    vec = tfidf.transform([text])
-    indices = vec.indices.tolist()
-    values = vec.data.tolist()
+# def sparse_vectorizer(text):
+#     vec = tfidf.transform([text])
+#     indices = vec.indices.tolist()
+#     values = vec.data.tolist()
+#     return {"indices": indices, "values": values}
+
+# Tokenize the corpus
+tokenized_chunks = [chunk.lower().split() for chunk in all_chunks]
+
+# Initialize BM25 model
+bm25 = BM25Okapi(tokenized_chunks)
+logging.info("BM25 model fitted.")
+
+# # Build vocabulary index for sparse representation
+# vocab = {word: idx for idx, word in enumerate(set(word for doc in tokenized_chunks for word in doc))}
+
+def sparse_vectorizer(text: str) -> dict:
+    tokens = text.lower().split()
+    scores = bm25.get_scores(tokens)
+
+    # Get non-zero BM25 scores and convert to sparse-like format
+    values = []
+    indices = []
+    for i, score in enumerate(scores):
+        if score > 0:
+            indices.append(i)
+            values.append(score)
+
     return {"indices": indices, "values": values}
+
 
 # --- Process and Upload ---
 all_points = []
@@ -138,12 +166,5 @@ for i in tqdm(range(0, len(all_points), BATCH_SIZE)):
         logging.error(f"Error uploading batch {i // BATCH_SIZE + 1}: {e}")
         raise CustomException(f"Failed to upload batch {i // BATCH_SIZE + 1}: {e}")
     
-# vectorstore = Qdrant.from_documents(
-#     all_points,
-#     embedding_model,
-#     url=f"http://{QDRANT_HOST}:{QDRANT_PORT}",
-#     collection_name=COLLECTION_NAME,
-#     force_recreate=False
-# )
 
 logging.info("✅ Upload complete.")

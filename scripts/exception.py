@@ -1,5 +1,5 @@
 import sys
-from exception.logger import logging
+from scripts.logger import logging
 
 def error_message_details(error,error_detail:sys):
     #exc_tb gives us the info on which line the error occured and witch file the error occured

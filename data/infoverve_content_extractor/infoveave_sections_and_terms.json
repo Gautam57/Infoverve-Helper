@@ -17,6 +17,7 @@
       "Conditional Expressions",
       "Connections",
       "Control Centre",
+      "Creator",
       "Cron trigger",
       "Cube Designer",
       "Custom Calendar",
@@ -40,13 +41,11 @@
       "Holiday Calendar",
       "Infoboards",
       "Infoboard Setup",
-      "Infoboard Setup",
       "Infoboard statistics",
       "Infoveave",
       "Infoveave menu",
       "Insights",
       "Lists",
-      "List Views",
       "Linked Reports",
       "Login statistics",
       "Measures",
@@ -54,7 +53,6 @@
       "ML Model",
       "My Organization",
       "My Workspace",
-      "NGuage Agents",
       "NGuage Forms",
       "Query",
       "Query Builder",
@@ -66,8 +64,6 @@
       "Server Statistics",
       "SMTP Settings",
       "Statistical Analysis",
-      "Studio",
-      "Studio User",
       "Tags",
       "Targets and Thresholds",
       "Template Reports",
@@ -93,16 +89,16 @@
       "Workflow Variables"
     ],
     "sections": [
-      "data-governance",
+      "data-quality",
+      "automation",
       "data-application",
       "administration",
-      "introduction-to-infoveave",
-      "data-quality",
-      "studio",
-      "insights",
-      "analysis",
       "videos",
-      "automation"
+      "analysis",
+      "insights",
+      "introduction-to-infoveave",
+      "studio",
+      "data-governance"
     ]
   }
 ]
