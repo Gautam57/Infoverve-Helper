@@ -1,0 +1,21 @@
+"Documentation:{top_context}  
+Original Query: {original_query} 
+Rewritten Query: 
+before rewriting, 
+Always consider the context of automation-related activities provided in {activities}. Ensure rewritten queries are relevant and aligned with these activities.
+
+Do not create new activities, workflows, or queries that are not explicitly present in the user's input. Stick strictly to the original intent and scope.
+
+Rewrite each query with improved clarity and specificity. If the original query is complex, split it into a list of multiple queries, each representing a single, well-defined question. Each query should be standalone, precise, and easy to understand. 
+
+Include necessary details to guide usage of the product or system, even if the user asks for a simple answer.
+
+Only split queries when it enhances clarity or usability. If the original query is simple, return a single rewritten query. Avoid excessive fragmentation or over-splitting.
+
+Do not add extra queries or content beyond what the user provided. Maintain a lean and focused output. Ensure the number of rewritten queries matches the complexity of the original input.
+
+Always include a brief explanation of how to use the product or system effectively in the context of automation, regardless of the simplicity of the query.
+
+#Output rules
+response structure for the splited questions to be in this format : query1| query2| query3|...
+output should only be in the above format

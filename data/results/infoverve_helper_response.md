@@ -1,57 +1,18 @@
-Let's build that workflow! Here's a breakdown of how to use the 'Execute API' activity to fetch data and then perform calculations within Infoveave:
+To create a new Datasource in Infoveave, follow these steps:
 
-**1. Setting Up the 'Execute API' Activity**
+1. **Navigate to Studio > Datasources.** This will display all the Datasources you've created or been shared.
 
-*   **Purpose:** This activity is your gateway to external data sources. You'll use it to retrieve information from an API and store it in Infoveave.
+2. **Click on "New Datasource".** This will open a window to start the Datasource creation process.
 
-*   **Configuration:**
+3. **Choose the Datasource type.** Infoveave supports various file formats like Excel, JSON, Delimited, Unstructured, Fixed Length files, and Multiple files. Select the appropriate type for your data.
 
-    *   **Connection:**  You'll need to establish a connection to your API. Infoveave supports various authentication methods like OAuth, Basic Auth, and API Keys.  Make sure you have the necessary credentials set up.
-    *   **Request Type:** Specify the HTTP method you'll use (e.g., GET, POST, PUT, DELETE).
-    *   **Request URL:** Enter the complete URL endpoint for the API you want to call. You can use placeholders (like `{{args.param}}`) to dynamically insert values from previous activities.
-    *   **Headers:**  If your API requires specific headers (like authorization tokens), add them here.
-    *   **Parameters:**  Provide any required query parameters for your API call.
-    *   **Body:** If your API requires data to be sent in the request body (e.g., for POST or PUT requests), enter it here in raw JSON or XML format.
+4. **Provide the necessary details.** Depending on the chosen Datasource type, you'll need to provide specific information like file path, connection details, or schema.
 
-*   **Output:** The 'Execute API' activity will return the API's response as JSON data.
+5. **Click "Next" to configure the data table.** Once the file processing is complete, a tabular preview of the data will be displayed.
 
-**2. Creating a Data Source**
+6. **Provide a name for your Datasource.**
 
-*   **Purpose:**  You'll use the API response to create a new data source in Infoveave. This will allow you to easily access and work with the retrieved data.
-
-*   **Steps:**
-
-    1.  **Navigate to Data Sources:** In Infoveave's interface, find the section for managing data sources.
-    2.  **Create New Data Source:** Click the button to create a new data source.
-    3.  **Select Data Type:** Choose the appropriate data type for your API response (e.g., JSON).
-    4.  **Name Your Data Source:** Give your data source a descriptive name.
-    5.  **Configure Ingestion:**
-
-        *   **Data Source Type:** Select the type of data source (e.g., API).
-        *   **Connection:** Choose the connection you established for your API.
-        *   **Data:**  Select the 'Execute API' activity as the source of your data.
-
-**3. Performing Calculations**
-
-*   **Purpose:** Now that your API data is in Infoveave, you can use various transformation activities to perform calculations.
-
-*   **Activities:**
-
-    *   **Transform Activity (using Javascript):** This activity gives you the flexibility to write custom Javascript code for complex calculations.
-    *   **Built-in Calculation Activities:** Infoveave likely has dedicated activities for common calculations like adding, subtracting, multiplying, dividing, rounding, etc.
-
-*   **Example:**
-
-    Let's say your API response contains data about products, including their price and quantity. You want to calculate the total value of each product.
-
-    1.  **Transform Activity:** Use a 'Transform Activity' and write Javascript code to multiply the 'price' and 'quantity' fields for each product.
-    2.  **Output:** The transformed data will now include a new field representing the total value.
-
-**Important Notes:**
-
-*   **Error Handling:**  Always consider error handling in your workflow. What happens if the API call fails or the data is not in the expected format?
-*   **Data Validation:**  Validate your data after retrieving it from the API to ensure its accuracy and completeness.
+7. **Add additional files (optional).** If needed, you can add more files to supplement your Datasource.
 
 
-
-Let me know if you have any more questions or want to explore specific calculation examples!
+Let me know if you have any other questions about creating Datasources in Infoveave.

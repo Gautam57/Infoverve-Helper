@@ -18,3 +18,5 @@ scikit-learn
 rank_bm25
 fastembed
 streamlit
+pandas
+openpyxl
