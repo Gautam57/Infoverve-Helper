@@ -1,18 +1,41 @@
-To create a new Datasource in Infoveave, follow these steps:
+Here's a breakdown of how to create a workflow in Infoveave to download a report based on your Oracle query and send it via email:
 
-1. **Navigate to Studio > Datasources.** This will display all the Datasources you've created or been shared.
+**1.  Set Up Your Oracle Connection:**
 
-2. **Click on "New Datasource".** This will open a window to start the Datasource creation process.
+*   **Infoveave Database Connection:** You'll need to establish a connection to your Oracle database within Infoveave. This involves providing the necessary credentials (username, password, hostname, port, and service name). Refer to the Infoveave documentation for detailed instructions on configuring database connections.
 
-3. **Choose the Datasource type.** Infoveave supports various file formats like Excel, JSON, Delimited, Unstructured, Fixed Length files, and Multiple files. Select the appropriate type for your data.
+**2.  Create a Query Activity:**
 
-4. **Provide the necessary details.** Depending on the chosen Datasource type, you'll need to provide specific information like file path, connection details, or schema.
+*   **Execute Query:** Use the "Execute Query" activity to run your pre-written Oracle query. This activity will fetch the data from your database based on the query's criteria.
 
-5. **Click "Next" to configure the data table.** Once the file processing is complete, a tabular preview of the data will be displayed.
+**3.  Generate the Report:**
 
-6. **Provide a name for your Datasource.**
+*   **Report Generation:**  Infoveave likely offers various report generation options. You'll need to select the appropriate format (e.g., PDF, Excel) and configure the report layout to display the data retrieved from your Oracle query.
 
-7. **Add additional files (optional).** If needed, you can add more files to supplement your Datasource.
+**4.  Download the Report:**
+
+*   **Download Report Activity:**  Use the "Download Report" activity to save the generated report to a temporary location within Infoveave.
+
+**5.  Send the Email:**
+
+*   **Email Activity:**  Utilize the "Send Email" activity to compose and send the email.
+    *   **Recipient:** Specify the email address(es) of the recipient(s).
+    *   **Subject:** Set a descriptive subject line for the email.
+    *   **Body:**  You can include a personalized message in the email body.
+    *   **Attachment:** Attach the downloaded report file to the email.
+
+**6.  Workflow Configuration:**
+
+*   **Sequence:** Arrange these activities in the correct order within your workflow. The query should execute first, followed by report generation, download, and finally, email sending.
+*   **Data Flow:** Ensure that the data retrieved from the Oracle query is properly passed to the report generation and email activities.
+
+**Example Workflow:**
+
+1.  **Execute Query (Oracle):**  Run your Oracle query.
+2.  **Generate Report (Infoveave):** Create a report based on the query results.
+3.  **Download Report:** Save the report as a PDF file.
+4.  **Send Email:** Compose an email with the report as an attachment and send it to the specified recipient.
 
 
-Let me know if you have any other questions about creating Datasources in Infoveave.
+
+Let me know if you have any more questions.

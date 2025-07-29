@@ -44,49 +44,53 @@ def fuse_vectors(vec1, vec2, alpha=0.3):
     fused = alpha * np.array(vec1) + (1 - alpha) * np.array(vec2)
     return fused / np.linalg.norm(fused)
 
+def get_infoverve_activities():
+    # Load the JSON file
+    with open("data/infoverve_content_extractor/infoveave_help_data.json", "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    # Filter all entries with section == "automation"
+    automation_entries = [entry for entry in data if entry.get("section") == "automation"]
+
+    # Print or use the content
+    activities = []
+    for item in automation_entries:
+        if "activities" in item['url'].split("/"):
+            title = item['content'].split("|")[0]
+            activities.append(title)
+    return activities
+
+
 def rewrite_query_with_docs(llm, original_query, docs):
-        try:
-            
+    try:
+        activities = get_infoverve_activities()
+        # logging.info("Activities related to automation:", activities)
 
-            # Load the JSON file
-            with open("data/infoverve_content_extractor/infoveave_help_data.json", "r", encoding="utf-8") as f:
-                data = json.load(f)
+        # Prepare the top context from the documents
+        top_context = "\n\n".join(doc[0].page_content for doc in docs)
+        with open("data/prompts/rewrittern_query_system_prompt.txt", "r") as file:
+            rewritten_query_system_prompt = file.read()
+        logging.info("Loaded rewritten query system prompt.")
 
-            # Filter all entries with section == "automation"
-            automation_entries = [entry for entry in data if entry.get("section") == "automation"]
+        rewritten_query_data = {
+            "top_context": top_context,
+            "original_query": original_query,
+            "activities": activities
+        }
 
-            activities = []
-            # Print or use the content
-            for item in automation_entries:
-                if "activities" in item['url'].split("/"):
-                    title = item['content'].split("|")[0]
-                    activities.append(title)
+        with open("data/prompts/rewrittern_query_user_prompt.txt", "r") as file:
+            rewritten_query_user_prompt = file.read()
+    
+        rewritten_query_user_prompt = rewritten_query_user_prompt.format_map(rewritten_query_data)
+        logging.info("Loaded rewritten query user prompt.")
 
-            logging.info("Activities related to automation:", activities)
-            top_context = "\n\n".join(doc[0].page_content for doc in docs)
-            with open("data/prompts/rewrittern_query_system_prompt.txt", "r") as file:
-                rewritten_query_system_prompt = file.read()
-            logging.info("Loaded rewritten query system prompt.")
-
-            rewritten_query_data = {
-                "top_context": top_context,
-                "original_query": original_query,
-                "activities": activities
-            }
-
-            with open("data/prompts/rewrittern_query_user_prompt.txt", "r") as file:
-                rewritten_query_user_prompt = file.read()
-        
-            rewritten_query_user_prompt = rewritten_query_user_prompt.format_map(rewritten_query_data)
-            logging.info("Loaded rewritten query user prompt.")
-
-            messages = [SystemMessage(content=rewritten_query_system_prompt), HumanMessage(content=rewritten_query_user_prompt)]
-            response = llm(messages)
-            rewritten = response.content.strip()
-        except Exception as e:
-            logging.error(f"Error during query rewriting: {str(e)}")
-            rewritten = original_query  # fallback to original query if error
-        return rewritten
+        messages = [SystemMessage(content=rewritten_query_system_prompt), HumanMessage(content=rewritten_query_user_prompt)]
+        response = llm(messages)
+        rewritten = response.content.strip()
+    except Exception as e:
+        logging.error(f"Error during query rewriting: {str(e)}")
+        rewritten = original_query  # fallback to original query if error
+    return rewritten
 
 # Retrieve API key (optional: validate it's loaded)
 try:
@@ -308,26 +312,15 @@ else:
     #     for doc in final_docs_with_vector
     # ]
     logging.info("Context prepared for LLM response.")
-    with open("data/infoverve_content_extractor/infoveave_help_data.json", "r", encoding="utf-8") as f:
-                data = json.load(f)
 
-                # Filter all entries with section == "automation"
-                automation_entries = [entry for entry in data if entry.get("section") == "automation"]
-
-                activities = []
-                # Print or use the content
-                for item in automation_entries:
-                    if "activities" in item['url'].split("/"):
-                        title = item['content'].split("|")[0]
-                        activities.append(title)
-
-                logging.info("Activities related to automation:", activities)
+    activities = get_infoverve_activities()
+    # logging.info("Activities related to automation:", activities)
     main_data = {
         "activities": activities,
     }
     with open("data/prompts/main_system_prompt.txt", "r") as file:
         main_system_prompt = file.read()
-
+    
 
     main_system_prompt = main_system_prompt.format_map(main_data)
     messages = [

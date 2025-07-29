@@ -1,3 +1,4 @@
 1. How to share an Infoboard externally?
 2. I need to create a workflow where I initially use the 'Execute API' to get a response and create a data source from it.Then, I want to perform calculations on that data. How do I create this flow?
 3. How do I create a data source in Infoverve?
+4. Need to create a workflow,with a query i had written in Oracle DB, i need to download a report and send it mail with the report how to do it?
