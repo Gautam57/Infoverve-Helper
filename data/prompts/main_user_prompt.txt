@@ -1,0 +1,5 @@
+User Query: {query} 
+Rewritten Query Parts: {query_parts}
+Responses for each part: {llm_queryPart_responses} 
+use the Responses for each part to form the final response connect them so that we will get the complete final response for the user query.
+provide complete detail how to use it with pointer type response and add examples.

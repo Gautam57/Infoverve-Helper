@@ -92,6 +92,32 @@ def rewrite_query_with_docs(llm, original_query, docs):
         rewritten = original_query  # fallback to original query if error
     return rewritten
 
+def llm_response_for_queryParts(llm, original_query, query_part, docs):
+    try:
+        activities = get_infoverve_activities()
+        # logging.info("Activities related to automation:", activities)
+        queryParts_data = {
+            "activities": activities,
+        }
+        with open("data/prompts/main_system_prompt.txt", "r") as file:
+            queryParts_system_prompt = file.read()
+        
+
+        queryParts_system_prompt = queryParts_system_prompt.format_map(queryParts_data)
+        # Prepare the top context from the documents
+        top_context = "\n\n".join(doc[0].page_content for doc in docs)
+
+        logging.info("Loaded rewritten query user prompt.")
+
+        messages = [SystemMessage(content=queryParts_system_prompt), 
+                    HumanMessage(content=f"Context:\n{top_context}\n\n need response for this query parts: {query_part}")]
+        response = llm(messages)
+        queryPart_response = response.content.strip()
+    except Exception as e:
+        logging.error(f"Error during query rewriting: {str(e)}")
+
+    return queryPart_response
+
 # Retrieve API key (optional: validate it's loaded)
 try:
     if "GOOGLE_API_KEY" not in st.session_state:
@@ -208,6 +234,7 @@ else:
     no_of_response = max(1, MAX_TOTAL_RESULTS // num_parts)
 
 # Loop through all query parts (even if it's just one)
+    llm_queryPart_responses = []
     for i, q in enumerate(query_parts):
         logging.info(f"Rewritten Query {i+1}: {q}")
         
@@ -222,6 +249,12 @@ else:
         #     k= no_of_response
         # )
         final_docs_with_score = vectorstore.similarity_search_with_score(query=q, k=no_of_response)
+
+        
+        logging.info(f"Processing query part {i+1}: {q}")
+        queryPart_response = llm_response_for_queryParts(llm, query, q, final_docs_with_score)
+        llm_queryPart_responses.append(queryPart_response)
+        logging.info(f"Response for query part {i+1}: {queryPart_response}")
 
         final_docs = []
         logging.info(final_docs_with_score)
@@ -264,6 +297,8 @@ else:
     #     embedding=vec_fused.tolist(),
     #     k=5
     # )
+
+
     logging.info(f"Found {len(context)} final documents.")
 
     # source_page_link = []
@@ -317,6 +352,10 @@ else:
     # logging.info("Activities related to automation:", activities)
     main_data = {
         "activities": activities,
+        "context": context,
+        "query": query,
+        "query_parts": query_parts,
+        "llm_queryPart_responses": llm_queryPart_responses
     }
     with open("data/prompts/main_system_prompt.txt", "r") as file:
         main_system_prompt = file.read()
@@ -324,9 +363,14 @@ else:
 
     main_system_prompt = main_system_prompt.format_map(main_data)
     
+    with open("data/prompts/main_user_prompt.txt", "r") as file:
+        main_user_prompt = file.read()
+    
+
+    main_user_prompt = main_user_prompt.format_map(main_data)
     messages = [
         SystemMessage(content=main_system_prompt),
-        HumanMessage(content=f"Context:\n{context}\n\nUser Query: {query}")
+        HumanMessage(content=main_user_prompt)
     ]
 
     logging.info("Generating final answer using LLM...")

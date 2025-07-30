@@ -1,41 +1,56 @@
-Here's a breakdown of how to create a workflow in Infoveave to download a report based on your Oracle query and send it via email:
+Let's explore how to create a machine learning model in Infoveave.
 
-**1.  Set Up Your Oracle Connection:**
+**1.  Creating a New ML Model**
 
-*   **Infoveave Database Connection:** You'll need to establish a connection to your Oracle database within Infoveave. This involves providing the necessary credentials (username, password, hostname, port, and service name). Refer to the Infoveave documentation for detailed instructions on configuring database connections.
+The context describes how to create a new ML Model in Infoveave. 
 
-**2.  Create a Query Activity:**
+You can select the required activities from the activity list and arrange them on the ML Models designer canvas to define the workflow.
 
-*   **Execute Query:** Use the "Execute Query" activity to run your pre-written Oracle query. This activity will fetch the data from your database based on the query's criteria.
+**2. Selecting a Trained Machine Learning Model**
 
-**3.  Generate the Report:**
+To select a trained machine learning model for use in the `Execute ML Model` activity, follow these steps:
 
-*   **Report Generation:**  Infoveave likely offers various report generation options. You'll need to select the appropriate format (e.g., PDF, Excel) and configure the report layout to display the data retrieved from your Oracle query.
+1. **Locate the Activity Panel:** In the Infoveave interface, you'll find a panel dedicated to activities. This panel lists all available activities, including those related to machine learning.
 
-**4.  Download the Report:**
+2. **Navigate to the ML Models Section:** Within the Activity panel, look for a section or category specifically labeled "ML Models" or something similar. This section will house all the trained machine learning models available for use in your workflows.
 
-*   **Download Report Activity:**  Use the "Download Report" activity to save the generated report to a temporary location within Infoveave.
+3. **Select the Desired Model:** Browse through the list of ML Models and click on the one you want to use. The selected model's details, such as its name, description, and type, will be displayed.
 
-**5.  Send the Email:**
+4. **Drag and Drop:** Once you've selected the desired ML Model, you can drag and drop it onto the canvas of your workflow. This will add the `Execute ML Model` activity to your workflow, and the selected model will be automatically populated in the configuration fields.
 
-*   **Email Activity:**  Utilize the "Send Email" activity to compose and send the email.
-    *   **Recipient:** Specify the email address(es) of the recipient(s).
-    *   **Subject:** Set a descriptive subject line for the email.
-    *   **Body:**  You can include a personalized message in the email body.
-    *   **Attachment:** Attach the downloaded report file to the email.
+**3. Configuring Infoveave**
 
-**6.  Workflow Configuration:**
+To configure Infoveave, you'll need to access the **Configuration panel**.  This panel likely provides options to customize various aspects of the product's settings and behavior. 
 
-*   **Sequence:** Arrange these activities in the correct order within your workflow. The query should execute first, followed by report generation, download, and finally, email sending.
-*   **Data Flow:** Ensure that the data retrieved from the Oracle query is properly passed to the report generation and email activities.
+Unfortunately, without more specific details about what you want to configure, I can't provide more precise instructions. 
 
-**Example Workflow:**
+For example, are you trying to:
 
-1.  **Execute Query (Oracle):**  Run your Oracle query.
-2.  **Generate Report (Infoveave):** Create a report based on the query results.
-3.  **Download Report:** Save the report as a PDF file.
-4.  **Send Email:** Compose an email with the report as an attachment and send it to the specified recipient.
+*  Set up data sources?
+*  Define data transformations?
+*  Configure user permissions?
+
+Please provide more context about what you'd like to configure, and I'll do my best to guide you through the process.
+
+**4. Linking Data Transformation Activities**
+
+To link your configured data transformation activities with the ML Model in the ML Model builder, you'll need to visually connect them. 
+
+Think of it like building a pipeline:
+
+1. **Identify the Output:** Each data transformation activity has an output node. This is where the transformed data "exits" the activity.
+
+2. **Identify the Input:** The ML Model also has an input node. This is where it expects to receive the prepared data.
+
+3. **Connect the Dots:**  Use your mouse to click and drag a line from the output node of one data transformation activity to the input node of the ML Model. You can repeat this process to link multiple transformation activities in sequence, creating a chain that leads to your ML Model.
+
+This visual connection establishes the flow of data, ensuring that the transformed data from each step is fed into the ML Model for training and prediction.
+
+**5. Validating and Building the Model**
+
+Clicking the "Validate and build" button initiates the process of validating and constructing your ML Model within Infoveave.  This action triggers the model building process. Upon successful completion, the output of the model will be displayed.  
+
+You can then select the model exhibiting the highest accuracy for predicting outcomes using additional input data. 
 
 
 
-Let me know if you have any more questions.
