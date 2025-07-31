@@ -11,6 +11,7 @@ Instructions:
 - Avoid adding any extra queries or over-splitting.
 - The number of rewritten queries should match the complexity of the original input.
 - Always include a brief explanation on how to use the product or system in the context of automation.
+- Before any workflow starts i needs one or more Datasource to use it as a database of tables which contians required data.
 
 # Output Rules:
 - Format split queries as:

@@ -60,14 +60,13 @@ def get_infoverve_activities():
             activities.append(title)
     return activities
 
-
 def rewrite_query_with_docs(llm, original_query, docs):
     try:
         activities = get_infoverve_activities()
         # logging.info("Activities related to automation:", activities)
 
         # Prepare the top context from the documents
-        top_context = "\n\n".join(doc[0].page_content for doc in docs)
+        top_context = llmcontextBuilder(docs, collection_name, client)
         with open("data/prompts/rewrittern_query_system_prompt.txt", "r") as file:
             rewritten_query_system_prompt = file.read()
         logging.info("Loaded rewritten query system prompt.")
@@ -92,7 +91,32 @@ def rewrite_query_with_docs(llm, original_query, docs):
         rewritten = original_query  # fallback to original query if error
     return rewritten
 
-def llm_response_for_queryParts(llm, original_query, query_part, docs):
+def llmcontextBuilder(docs,collection_name, client):
+    for doc in docs:
+        logging.info(doc)
+        point_id = doc[0].metadata.get("_id")  # assuming you stored point ID
+        if point_id:
+            result = client.retrieve(
+                collection_name=collection_name,
+                ids=[point_id],
+                with_payload=True,
+            )
+        
+            logging.info(f"Retrieved result for point ID: {point_id}")
+            context_with_metadata = {"page_content": result[0].payload.get("page_content", ""),
+                                        "url": result[0].payload.get("url", ""),
+                                        "title": result[0].payload.get("title", ""),
+                                        "section": result[0].payload.get("section", ""),
+                                        "terminologies": result[0].payload.get("terminologies", []),
+                                        "char_count": result[0].payload.get("char_count", 0),
+                                        "word_count": result[0].payload.get("word_count", 0),
+                                        "chunk_index": result[0].payload.get("chunk_index", None)
+                                        }
+
+            context.extend(context_with_metadata)
+    return context
+
+def llm_response_for_queryParts(llm, query_part, docs):
     try:
         activities = get_infoverve_activities()
         # logging.info("Activities related to automation:", activities)
@@ -105,7 +129,8 @@ def llm_response_for_queryParts(llm, original_query, query_part, docs):
 
         queryParts_system_prompt = queryParts_system_prompt.format_map(queryParts_data)
         # Prepare the top context from the documents
-        top_context = "\n\n".join(doc[0].page_content for doc in docs)
+        top_context = llmcontextBuilder(docs, collection_name, client)
+        # "\n\n".join(doc[0].page_content for doc in docs)
 
         logging.info("Loaded rewritten query user prompt.")
 
@@ -118,6 +143,7 @@ def llm_response_for_queryParts(llm, original_query, query_part, docs):
 
     return queryPart_response
 
+logging.info(".........................Starting Infoverve Helper Application.........................")
 # Retrieve API key (optional: validate it's loaded)
 try:
     if "GOOGLE_API_KEY" not in st.session_state:
@@ -199,7 +225,7 @@ else:
     initial_docs_with_scores = vectorstore.similarity_search_with_score(query=query, k=10)
 
     initial_docs = []
-    logging.info(initial_docs_with_scores)
+    # logging.info(initial_docs_with_scores)
     for doc, score in initial_docs_with_scores:
         row = {
             "score": score,
@@ -252,7 +278,7 @@ else:
 
         
         logging.info(f"Processing query part {i+1}: {q}")
-        queryPart_response = llm_response_for_queryParts(llm, query, q, final_docs_with_score)
+        queryPart_response = llm_response_for_queryParts(llm, q, final_docs_with_score)
         llm_queryPart_responses.append(queryPart_response)
         logging.info(f"Response for query part {i+1}: {queryPart_response}")
 
@@ -274,13 +300,7 @@ else:
             final_docs_df.to_excel(writer, sheet_name=sheet_name, index=False)
         
         # Add documents to context
-        context.extend([
-            {
-                "page_content": doc[0].page_content,
-                "metadata": doc[0].metadata
-            }
-            for doc in final_docs_with_score
-        ])
+        context.extend([llmcontextBuilder(final_docs_with_score, collection_name, client)])
 
 
 
