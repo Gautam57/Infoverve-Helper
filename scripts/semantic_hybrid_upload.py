@@ -34,7 +34,7 @@ os.environ["GOOGLE_API_KEY"] = GOOGLE_API_KEY
 
 # --- Config ---
 JSON_FILE = "data/infoverve_content_extractor/infoveave_help_data.json"
-COLLECTION_NAME = "infoverve_helper_docs_hybrid"
+COLLECTION_NAME = "infoverve_docs_kg_hybrid"
 QDRANT_HOST = "ai.infoveave.cloud"
 QDRANT_PORT = 6333
 CHUNK_SIZE = 500
@@ -143,6 +143,13 @@ for page in tqdm(all_pages):
             "page_content": chunk,
             "chunk_index": idx
         }
+
+        payload["entities"] = ([{"name": term, "type": "Concept"} for term in page.get("Terminologies", [])] 
+        + [{"name": page.get("Page_title"), "type": "Widget"},{"name": page.get("section"), "type": "Section"},])
+
+        payload["triplets"] = ([(page.get("Page_title"), "belongs_to", page.get("section"))] 
+        + [ (page.get("Page_title"), "relates_to", term) for term in page.get("Terminologies", [])])
+
 
         sparse_vec = sparse_vectorizer(chunk)
         point = PointStruct(

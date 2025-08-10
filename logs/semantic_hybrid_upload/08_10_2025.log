@@ -1,0 +1,50 @@
+[ 2025-08-10 16:51:06,482 ] semantic_hybrid_upload.py:31 root - INFO - GOOGLE_API_KEY loaded.
+[ 2025-08-10 16:51:06,490 ] semantic_hybrid_upload.py:48 root - INFO - Loaded 492 pages.
+[ 2025-08-10 16:51:06,490 ] semantic_hybrid_upload.py:54 root - INFO - Initializing embedding model...
+[ 2025-08-10 16:51:06,516 ] semantic_hybrid_upload.py:60 root - INFO - Embedding model initialized.
+[ 2025-08-10 16:51:06,516 ] semantic_hybrid_upload.py:63 root - INFO - Initializing text splitter...
+[ 2025-08-10 16:51:06,516 ] semantic_hybrid_upload.py:69 root - INFO - Text splitter initialized.
+[ 2025-08-10 16:51:06,789 ] _client.py:1025 httpx - INFO - HTTP Request: GET http://ai.infoveave.cloud:6333 "HTTP/1.1 200 OK"
+[ 2025-08-10 16:51:06,793 ] semantic_hybrid_upload.py:73 root - INFO - Connected to Qdrant.
+[ 2025-08-10 16:51:06,908 ] _client.py:1025 httpx - INFO - HTTP Request: GET http://ai.infoveave.cloud:6333/collections "HTTP/1.1 200 OK"
+[ 2025-08-10 16:51:07,721 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid "HTTP/1.1 200 OK"
+[ 2025-08-10 16:51:07,723 ] semantic_hybrid_upload.py:81 root - INFO - Collection 'infoverve_docs_kg_hybrid' is ready.
+[ 2025-08-10 16:58:41,693 ] semantic_hybrid_upload.py:87 root - INFO - Total chunks for TF-IDF: 2091
+[ 2025-08-10 16:58:41,930 ] semantic_hybrid_upload.py:104 root - INFO - BM25 model fitted.
+[ 2025-08-10 16:58:41,930 ] semantic_hybrid_upload.py:127 root - INFO - Processing 492 pages...
+[ 2025-08-10 17:01:11,632 ] semantic_hybrid_upload.py:31 root - INFO - GOOGLE_API_KEY loaded.
+[ 2025-08-10 17:01:11,640 ] semantic_hybrid_upload.py:48 root - INFO - Loaded 492 pages.
+[ 2025-08-10 17:01:11,640 ] semantic_hybrid_upload.py:54 root - INFO - Initializing embedding model...
+[ 2025-08-10 17:01:11,659 ] semantic_hybrid_upload.py:60 root - INFO - Embedding model initialized.
+[ 2025-08-10 17:01:11,659 ] semantic_hybrid_upload.py:63 root - INFO - Initializing text splitter...
+[ 2025-08-10 17:01:11,659 ] semantic_hybrid_upload.py:69 root - INFO - Text splitter initialized.
+[ 2025-08-10 17:01:11,931 ] _client.py:1025 httpx - INFO - HTTP Request: GET http://ai.infoveave.cloud:6333 "HTTP/1.1 200 OK"
+[ 2025-08-10 17:01:11,934 ] semantic_hybrid_upload.py:73 root - INFO - Connected to Qdrant.
+[ 2025-08-10 17:01:12,032 ] _client.py:1025 httpx - INFO - HTTP Request: GET http://ai.infoveave.cloud:6333/collections "HTTP/1.1 200 OK"
+[ 2025-08-10 17:01:12,035 ] semantic_hybrid_upload.py:81 root - INFO - Collection 'infoverve_docs_kg_hybrid' is ready.
+[ 2025-08-10 17:08:32,273 ] semantic_hybrid_upload.py:87 root - INFO - Total chunks for TF-IDF: 2091
+[ 2025-08-10 17:08:32,485 ] semantic_hybrid_upload.py:104 root - INFO - BM25 model fitted.
+[ 2025-08-10 17:08:32,485 ] semantic_hybrid_upload.py:127 root - INFO - Processing 492 pages...
+[ 2025-08-10 17:21:38,666 ] semantic_hybrid_upload.py:164 root - INFO - Uploading 2091 vectors in batches of 100...
+[ 2025-08-10 17:21:41,940 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:21:44,708 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:21:47,165 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:21:49,927 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:21:52,691 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:21:55,766 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:21:58,219 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:01,067 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:04,367 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:08,054 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:11,431 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:15,743 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:19,725 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:23,412 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:27,462 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:31,706 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:35,659 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:40,004 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:43,786 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:48,604 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:51,982 ] _client.py:1025 httpx - INFO - HTTP Request: PUT http://ai.infoveave.cloud:6333/collections/infoverve_docs_kg_hybrid/points?wait=true "HTTP/1.1 200 OK"
+[ 2025-08-10 17:22:51,985 ] semantic_hybrid_upload.py:177 root - INFO - ✅ Upload complete.

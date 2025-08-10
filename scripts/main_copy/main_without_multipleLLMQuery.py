@@ -21,7 +21,6 @@ from scripts.exception import CustomException
 from scripts.logger import logging, setup_logger
 
 import streamlit as st
-from neo4j import GraphDatabase
 
 import asyncio
 
@@ -36,11 +35,6 @@ load_dotenv()  # Loads variables from .env into environment
 setup_logger(__file__)
 
 VB_reterived_excel_filepath = "data/results/reterived_docs.xlsx"
-
-NEO4J_URI = "neo4j+s://034f8de5.databases.neo4j.io"
-NEO4J_USER = "neo4j"
-NEO4J_PASS = os.getenv("NEO4J_PASSWORD")
-driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASS))
 
 # Query rewriting and semantic fusion
 def get_embedding(text):
@@ -66,82 +60,14 @@ def get_infoverve_activities():
             activities.append(title)
     return activities
 
-def llmcontextBuilder(docs,collection_name, client):
-    All_context_with_MD = []
-    logging.info("Building context with metadata from documents...")
-    for doc in docs:
-        logging.info(doc)
-        point_id = doc[0].metadata.get("_id")  # assuming you stored point ID
-        if point_id:
-            result = client.retrieve(
-                collection_name=collection_name,
-                ids=[point_id],
-                with_payload=True,
-            )
-            logging.info(result)
-            logging.info(f"Retrieved result for point ID: {point_id}")
-            context_with_metadata = {"page_content": result[0].payload.get("page_content", ""),
-                                        "url": result[0].payload.get("url", ""),
-                                        "title": result[0].payload.get("title", ""),
-                                        "section": result[0].payload.get("section", ""),
-                                        "terminologies": result[0].payload.get("terminologies", []),
-                                        "char_count": result[0].payload.get("char_count", 0),
-                                        "word_count": result[0].payload.get("word_count", 0),
-                                        "chunk_index": result[0].payload.get("chunk_index", None),
-                                        "entities": result[0].payload.get("entities", []),
-                                        "triplets": result[0].payload.get("triplets", []),
-                                        "id": point_id
-                                        }
-            # print(context_with_metadata)
-
-            All_context_with_MD.append(context_with_metadata)
-    # logging.info(All_context_with_MD)
-    return All_context_with_MD
-
-def query_neo4j_for_entities(entities, hops=1, top_n=20):
-    # returns list of (head, rel, tail) from Neo4j related to given entities
-    logging.info(f"Querying Neo4j for entities: {entities} with hops={hops} and top_n={top_n}")
-    names = ["Concept", "Widget", "Section"]
-
-    query = """
-    UNWIND $names AS label
-    MATCH (e:`${label}`)
-    OPTIONAL MATCH (e)-[r]-(m)
-    RETURN e.name AS head, type(r) AS rel, m.name AS tail, COUNT(*) AS freq
-    LIMIT $limit
-    """
-
-    with driver.session() as session:
-        res = session.run(query, names=names, limit=top_n)
-        triplets = []
-        for row in res:
-            if row["rel"]:  # skip if no relationship
-                triplets.append((row["head"], row["rel"], row["tail"]))
-
-    logging.info(f"Retrieved {len(triplets)} triplets from Neo4j.")
-    return triplets
 
 def rewrite_query_with_docs(llm, original_query, docs):
     try:
         activities = get_infoverve_activities()
         # logging.info("Activities related to automation:", activities)
-        top_context = llmcontextBuilder(docs, collection_name, client)
-        logging.info("Top context prepared for query rewriting.")
-        entities = set()
-        for h in top_context:
-            for ent in h.get("entities", []) or h.get("terminologies", []):
-                entities.add(ent)
-        # Query Neo4j for related facts
-        neo_triplets = query_neo4j_for_entities(list(entities), top_n=50)
 
-        logging.info(f"Retrieved {len(neo_triplets)} related triplets from Neo4j.")
-
-        kg_lines = [f"{h} —[{r}]→ {t}" for (h, r, t) in neo_triplets]
-        kg_text = "\n".join(kg_lines)
-        
-        logging.info("Knowledge graph facts prepared for query rewriting.")
         # Prepare the top context from the documents
-        
+        top_context = "\n\n".join(doc[0].page_content for doc in docs)
         with open("data/prompts/rewrittern_query_system_prompt.txt", "r") as file:
             rewritten_query_system_prompt = file.read()
         logging.info("Loaded rewritten query system prompt.")
@@ -149,8 +75,7 @@ def rewrite_query_with_docs(llm, original_query, docs):
         rewritten_query_data = {
             "top_context": top_context,
             "original_query": original_query,
-            "activities": activities,
-            "kg_text": kg_text,
+            "activities": activities
         }
 
         with open("data/prompts/rewrittern_query_user_prompt.txt", "r") as file:
@@ -167,35 +92,6 @@ def rewrite_query_with_docs(llm, original_query, docs):
         rewritten = original_query  # fallback to original query if error
     return rewritten
 
-def llm_response_for_queryParts(llm, query_part, docs):
-    try:
-        activities = get_infoverve_activities()
-        # logging.info("Activities related to automation:", activities)
-        queryParts_data = {
-            "activities": activities,
-        }
-        with open("data/prompts/main_system_prompt.txt", "r") as file:
-            queryParts_system_prompt = file.read()
-        
-
-        queryParts_system_prompt = queryParts_system_prompt.format_map(queryParts_data)
-        # Prepare the top context from the documents
-        context = llmcontextBuilder(docs, collection_name, client)
-        # "\n\n".join(doc[0].page_content for doc in docs)
-
-        logging.info("Loaded rewritten query user prompt.")
-
-        messages = [SystemMessage(content=queryParts_system_prompt), 
-                    HumanMessage(content=f"Context:\n{context}\n\n need response for this query parts: {query_part}")]
-        response = llm(messages)
-        queryPart_response = response.content.strip()
-    except Exception as e:
-        logging.error(f"Error during query rewriting: {str(e)}")
-
-    return queryPart_response
-
-
-logging.info(".........................Starting Infoverve Helper Application.........................")
 # Retrieve API key (optional: validate it's loaded)
 try:
     if "GOOGLE_API_KEY" not in st.session_state:
@@ -277,7 +173,7 @@ else:
     initial_docs_with_scores = vectorstore.similarity_search_with_score(query=query, k=10)
 
     initial_docs = []
-    # logging.info(initial_docs_with_scores)
+    logging.info(initial_docs_with_scores)
     for doc, score in initial_docs_with_scores:
         row = {
             "score": score,
@@ -312,20 +208,20 @@ else:
     no_of_response = max(1, MAX_TOTAL_RESULTS // num_parts)
 
 # Loop through all query parts (even if it's just one)
-    llm_queryPart_responses = []
     for i, q in enumerate(query_parts):
         logging.info(f"Rewritten Query {i+1}: {q}")
         
         vec_rewritten = get_embedding(q)
         logging.info(f"Embedding generated for query {i+1}.")
         
-        final_docs_with_score = vectorstore.similarity_search_with_score(query=q, k=no_of_response)
-
+        # vec_fused = fuse_vectors(vec_original, vec_rewritten)
+        # logging.info(f"Fused embedding generated for query {i+1}.")
         
-        logging.info(f"Processing query part {i+1}: {q}")
-        queryPart_response = llm_response_for_queryParts(llm, q, final_docs_with_score)
-        llm_queryPart_responses.append(queryPart_response)
-        logging.info(f"Response for query part {i+1}: {queryPart_response}")
+        # final_docs_with_vector = vectorstore.similarity_search_by_vector(
+        #     embedding=vec_fused.tolist(),
+        #     k= no_of_response
+        # )
+        final_docs_with_score = vectorstore.similarity_search_with_score(query=q, k=no_of_response)
 
         final_docs = []
         logging.info(final_docs_with_score)
@@ -345,57 +241,104 @@ else:
             final_docs_df.to_excel(writer, sheet_name=sheet_name, index=False)
         
         # Add documents to context
-        context.extend([llmcontextBuilder(final_docs_with_score, collection_name, client)])
+        context.extend([
+            {
+                "page_content": doc[0].page_content,
+                "metadata": doc[0].metadata
+            }
+            for doc in final_docs_with_score
+        ])
 
 
+
+    # logging.info(f"Rewritten Query: {rewritten_query}")
+
+    # vec_rewritten = get_embedding(rewritten_query)
+    # logging.info("Rewritten query embedding generated.")
+
+    # # Step 3: Semantic fusion
+    # vec_fused = fuse_vectors(vec_original, vec_rewritten)
+    # logging.info("Fused embedding generated.")
+
+    # final_docs_with_vector = vectorstore.similarity_search_by_vector(
+    #     embedding=vec_fused.tolist(),
+    #     k=5
+    # )
     logging.info(f"Found {len(context)} final documents.")
+
+    # source_page_link = []
+    # for doc in final_docs_with_vector:
+    #     point_id = doc.metadata.get("_id")  # assuming you stored point ID
+    #     if point_id:
+    #         result = client.retrieve(
+    #             collection_name=collection_name,
+    #             ids=[point_id],
+    #             with_payload=True,
+    #         )
+    #         page_link = result[0].payload.get('url', '')
+    #         source_page_link.append(page_link)
+
+    # source_page_link = list(set(source_page_link))  # Remove duplicates
+
+    # logging.info(f"Retrieved {source_page_link} documents with vectors and payload.")
+
+    # filter = Filter(
+    #     must=[
+    #         FieldCondition(
+    #             key="url",
+    #             match=MatchAny(any=source_page_link)  # list of values
+    #         )
+    #     ]
+    # )
+
+    # results, _ = client.scroll(
+    #     collection_name=collection_name,
+    #     scroll_filter=filter,
+    #     with_payload=True,
+    #     limit=100,
+    # )
+
+    # logging.info(f"Total matches: {len(results)}")
+    # logging.info(results)
+
+
+
+
+    # context = [
+    #     {
+    #         "page_content": doc.page_content,
+    #         "metadata": doc.metadata
+    #     }
+    #     for doc in final_docs_with_vector
+    # ]
     logging.info("Context prepared for LLM response.")
-    if len(llm_queryPart_responses) > 1:
 
-        activities = get_infoverve_activities()
-        # logging.info("Activities related to automation:", activities)
-        main_data = {
-            "activities": activities,
-            "context": context,
-            "query": query,
-            "query_parts": query_parts,
-            "llm_queryPart_responses": llm_queryPart_responses
-        }
-        with open("data/prompts/main_system_prompt.txt", "r") as file:
-            main_system_prompt = file.read()
-        
+    activities = get_infoverve_activities()
+    # logging.info("Activities related to automation:", activities)
+    main_data = {
+        "activities": activities,
+    }
+    with open("data/prompts/main_system_prompt.txt", "r") as file:
+        main_system_prompt = file.read()
+    
 
-        main_system_prompt = main_system_prompt.format_map(main_data)
-        
-        with open("data/prompts/main_user_prompt.txt", "r") as file:
-            main_user_prompt = file.read()
-        
+    main_system_prompt = main_system_prompt.format_map(main_data)
+    
+    messages = [
+        SystemMessage(content=main_system_prompt),
+        HumanMessage(content=f"Context:\n{context}\n\nUser Query: {query}")
+    ]
 
-        main_user_prompt = main_user_prompt.format_map(main_data)
-        messages = [
-            SystemMessage(content=main_system_prompt),
-            HumanMessage(content=main_user_prompt)
-        ]
+    logging.info("Generating final answer using LLM...")
+    response = llm.invoke(messages)
+    logging.info("Final LLM Response:\n")
+    logging.info(response.content)
 
-        logging.info("Generating final answer using LLM...")
-        response = llm.invoke(messages)
-        logging.info("Final LLM Response:\n")
-        logging.info(response.content)
+    # Save response to a Markdown file
+    output_md_path = "./data/results/infoverve_helper_response.md"
+    with open(output_md_path, "w", encoding="utf-8") as f:
+        f.write(response.content)
 
-        # Save response to a Markdown file
-        output_md_path = "./data/results/infoverve_helper_response.md"
-        with open(output_md_path, "w", encoding="utf-8") as f:
-            f.write(response.content)
-
-        logging.info(f"LLM response saved to {output_md_path}")
-        st.markdown(response.content)
-    else:
-        response = llm_queryPart_responses[0]
-
-        output_md_path = "./data/results/infoverve_helper_response.md"
-        with open(output_md_path, "w", encoding="utf-8") as f:
-            f.write(response)
-        logging.info("Single query part response:\n")
-        logging.info(response)
-        st.markdown(response)
+    logging.info(f"LLM response saved to {output_md_path}")
+    st.markdown(response.content)
 

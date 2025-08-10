@@ -1,48 +1,44 @@
-Let's build that workflow! 
+Let's break down how to create a workflow in Infoveave that uses an API, creates a Datasource, and then performs calculations on the data.
 
-Here's a breakdown of how to use Infoveave to execute an API, create a data source, and perform calculations:
+**1. Execute API Activity**
 
-**1.  Execute the API:**
+The **Execute API Activity** is your starting point. It allows you to fetch data from any RESTful API. Here's how it works:
 
-*   **Start with the 'Execute API' activity:** This activity allows you to connect to an external API and retrieve data. You'll need to provide the API endpoint URL, any necessary authentication details, and the parameters for your request. 
-*   **Store the response:**  Infoveave will return the API response as data. You can store this data in a variable for later use.
+*   **Connection:** You'll need to provide the API's URL, the HTTP method (GET, POST, PUT, DELETE), and any necessary headers for authentication or data formatting.
+*   **Request Body:** For POST requests, you'll need to define the data you want to send to the API in the request body. This is often in JSON format.
+*   **Response Handling:** Infoveave will handle parsing the API's response and making the data accessible within your workflow.
 
-**2. Create a Data Source:**
+   You can learn more about the Execute API activity here: [https://infoveave-help.pages.dev/automation-v8/activities/execute-api/](https://infoveave-help.pages.dev/automation-v8/activities/execute-api/)
 
-*   **Use the 'Update Datasource' activity:** This activity lets you create a new data source from the data you retrieved from the API. 
-*   **Specify the data source type:** Choose the appropriate data source type based on the format of your API response (e.g., JSON, CSV).
-*   **Name your data source:** Give your data source a descriptive name for easy identification.
+**2. Add a Datasource from the API Response**
 
-**3. Perform Calculations:**
+Once you've successfully executed the API call, you'll want to create a Datasource from the response data. This will allow you to easily access and manipulate the data within your workflow.
 
-*   **Access your data source:**  Use the 'Query Datasource' activity to access the data you stored in your newly created data source.
-*   **Apply calculations:** Infoveave offers a wide range of calculation functions. You can use these functions to perform arithmetic operations, aggregate data, filter data, and more.
+*   **Navigate to Sources:** In the Infoveave interface, go to the "Sources" section.
+*   **Add New Source:** Click the "+ Add New Source" button.
+*   **Select "Use API":** Choose the "Use API" option to indicate you want to connect to an API.
+*   **Name the Source:** Give your Datasource a descriptive name.
+*   **Choose Request Method:** Select either "GET" or "POST" depending on the API's requirements.
+*   **Enter API URL:**  Input the complete URL of the API endpoint you want to access.
+*   **Select Content Type:** Choose the appropriate content type for the API, such as "json" or "form-url-encoded".
+*   **Add Headers (if needed):**  If the API requires authentication or other headers, click "Headers" and add them with their corresponding values. Common headers include:
+    *   **Authorization:**  Often used for authentication, it might include a token or other credentials.
+    *   **Content-Type:** Specifies the format of the data being sent, such as "application/json" for JSON data.
+*   **Add Request Body (if needed):** For POST requests, enter the JSON data as the request body.
+*   **Run and Test:** Click "Run" to test the API connection and preview the data.
+*   **Save:** Once you're satisfied with the connection, click "Save" to create the Datasource.
 
-**Example Workflow:**
+**3. Add Calculated Columns**
 
-1.  **Execute API:**
-    *   API Endpoint: `https://api.example.com/data`
-    *   Authentication: API Key (stored as a secret in Infoveave)
-    *   Parameters: `?limit=100`
-    *   Store response in variable: `api_response`
+Now that you have your Datasource, you can add calculated columns to perform further analysis and derive new insights from the data.
 
-2.  **Update Datasource:**
-    *   Data Source Type: JSON
-    *   Data Source Name: `API_Data`
-    *   Data Source Content: `api_response`
+*   **Navigate to Datasource:** Open the Datasource you created in the "Sources" section.
+*   **Click "Add Column":**  Find the option to add a new column to your Datasource.
+*   **Choose "Calculated":** Select the "Calculated" option to indicate you want to create a column based on existing data.
+*   **Define the Calculation:** Use Infoveave's expression builder to write a formula that calculates the new column's values based on existing columns in your Datasource. You can use mathematical operators, logical functions, and other functions available in Infoveave's expression language.
 
-3.  **Query Datasource:**
-    *   Data Source: `API_Data`
-    *   Query: `SELECT * FROM data`
-
-4.  **Calculate:**
-    *   Use the 'Calculate' activity to perform calculations on the data retrieved from the API. For example, you could calculate the average value of a specific column.
-
-**Remember:**
-
-*   Replace the example API endpoint and parameters with your own.
-*   Refer to the Infoveave documentation for a complete list of available activities and functions.
+   You can learn more about adding calculated columns in Infoveave here: [https://infoveave-help.pages.dev/insights-v8/configure-expression/trim/](https://infoveave-help.pages.dev/insights-v8/configure-expression/trim/)
 
 
 
-Let me know if you have any other questions or need help with a specific part of the workflow! 
+Let me know if you have any more questions or would like to explore specific API examples or calculation scenarios!

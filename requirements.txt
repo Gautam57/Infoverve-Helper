@@ -20,3 +20,4 @@ fastembed
 streamlit
 pandas
 openpyxl
+neo4j

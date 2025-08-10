@@ -3,3 +3,4 @@
 3. How do I create a data source in Infoverve?
 4. Need to create a workflow,with a query i had written in Oracle DB, i send a mail to a customer with the response from the query?
 5. Need to create a workflow,with a query i had written in Oracle DB, i send a mail to a customer with the response from the query? This workflow should run everyday morning without any human intervension
+6. Need to create a workflow, to run a query from oracle DB and send the query response as a report through Email

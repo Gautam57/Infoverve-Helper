@@ -1,5 +1,6 @@
 Documentation: {top_context}
 Original Query: {original_query}
+Knowledge Graph Facts:{kg_text}
 Rewritten Query:
 
 Instructions:
@@ -12,6 +13,7 @@ Instructions:
 - The number of rewritten queries should match the complexity of the original input.
 - Always include a brief explanation on how to use the product or system in the context of automation.
 - Before any workflow starts i needs one or more Datasource to use it as a database of tables which contians required data.
+- Use the documentation and the knowledge graph facts to answer the user. Cite sources when possible by URL or title.
 
 # Output Rules:
 - Format split queries as:
