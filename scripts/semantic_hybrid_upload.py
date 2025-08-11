@@ -132,7 +132,7 @@ for page in tqdm(all_pages):
     embeddings = embedding_model.embed_documents(chunks)
     # logging.info(f"Page '{page.get('Page_title', 'Unknown')}' has {len(chunks)} chunks.")
 
-    for idx, (chunk, vector) in enumerate(zip(chunks, embeddings)):
+    for idx, (chunk, vec) in enumerate(zip(chunks, embeddings)):
         payload = {
             "url": page.get("url"),
             "title": page.get("Page_title"),
@@ -141,20 +141,24 @@ for page in tqdm(all_pages):
             "char_count": page.get("no_of_char", 0),
             "word_count": page.get("no_of_words", 0),
             "page_content": chunk,
-            "chunk_index": idx
+            "chunk_index": idx,
+            "entities": ([{"name": term, "type": "Concept"} for term in page.get("Terminologies", [])] 
+        + [{"name": page.get("Page_title"), "type": "Widget"},{"name": page.get("section"), "type": "Section"},]),
+            "triplets": ([(page.get("Page_title"), "belongs_to", page.get("section"))] 
+        + [ (page.get("Page_title"), "relates_to", term) for term in page.get("Terminologies", [])])
         }
 
-        payload["entities"] = ([{"name": term, "type": "Concept"} for term in page.get("Terminologies", [])] 
-        + [{"name": page.get("Page_title"), "type": "Widget"},{"name": page.get("section"), "type": "Section"},])
+        # payload["entities"] = ([{"name": term, "type": "Concept"} for term in page.get("Terminologies", [])] 
+        # + [{"name": page.get("Page_title"), "type": "Widget"},{"name": page.get("section"), "type": "Section"},])
 
-        payload["triplets"] = ([(page.get("Page_title"), "belongs_to", page.get("section"))] 
-        + [ (page.get("Page_title"), "relates_to", term) for term in page.get("Terminologies", [])])
+        # payload["triplets"] = ([(page.get("Page_title"), "belongs_to", page.get("section"))] 
+        # + [ (page.get("Page_title"), "relates_to", term) for term in page.get("Terminologies", [])])
 
 
         sparse_vec = sparse_vectorizer(chunk)
         point = PointStruct(
             id=str(uuid4()),
-            vector={"dense": vector,
+            vector={"dense": vec,
                     "sparse": models.SparseVector(indices=sparse_vec["indices"], values=sparse_vec["values"])},
             payload=payload
         )

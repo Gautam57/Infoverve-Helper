@@ -70,7 +70,7 @@ def llmcontextBuilder(docs,collection_name, client):
     All_context_with_MD = []
     logging.info("Building context with metadata from documents...")
     for doc in docs:
-        logging.info(doc)
+        # logging.info(doc)
         point_id = doc[0].metadata.get("_id")  # assuming you stored point ID
         if point_id:
             result = client.retrieve(
@@ -85,11 +85,11 @@ def llmcontextBuilder(docs,collection_name, client):
                                         "title": result[0].payload.get("title", ""),
                                         "section": result[0].payload.get("section", ""),
                                         "terminologies": result[0].payload.get("terminologies", []),
-                                        "char_count": result[0].payload.get("char_count", 0),
-                                        "word_count": result[0].payload.get("word_count", 0),
-                                        "chunk_index": result[0].payload.get("chunk_index", None),
-                                        "entities": result[0].payload.get("entities", []),
-                                        "triplets": result[0].payload.get("triplets", []),
+                                        # "char_count": result[0].payload.get("char_count", 0),
+                                        # "word_count": result[0].payload.get("word_count", 0),
+                                        # "chunk_index": result[0].payload.get("chunk_index", None),
+                                        # "entities": result[0].payload.get("entities", []),
+                                        # "triplets": result[0].payload.get("triplets", []),
                                         "id": point_id
                                         }
             # print(context_with_metadata)
@@ -97,6 +97,30 @@ def llmcontextBuilder(docs,collection_name, client):
             All_context_with_MD.append(context_with_metadata)
     # logging.info(All_context_with_MD)
     return All_context_with_MD
+
+def entities_retrivel(docs,collection_name, client):
+    entities = []
+    logging.info("Building context with metadata from documents...")
+    for doc in docs:
+        # logging.info(doc)
+        point_id = doc[0].metadata.get("_id")  # assuming you stored point ID
+        if point_id:
+            result = client.retrieve(
+                collection_name=collection_name,
+                ids=[point_id],
+                with_payload=True,
+            )
+            logging.info(result)
+            logging.info(f"Retrieved result for point ID: {point_id}")
+            entities_triplets = {
+                "entities": result[0].payload.get("entities", []),
+                "triplets": result[0].payload.get("triplets", []),
+                }
+            # print(context_with_metadata)
+
+            entities.append(entities_triplets)
+    # logging.info(All_context_with_MD)
+    return entities
 
 def query_neo4j_for_entities(entities, hops=1, top_n=20):
     # returns list of (head, rel, tail) from Neo4j related to given entities
@@ -141,8 +165,9 @@ def rewrite_query_with_docs(llm, original_query, docs):
         # logging.info("Activities related to automation:", activities)
         top_context = llmcontextBuilder(docs, collection_name, client)
         logging.info("Top context prepared for query rewriting.")
+        retrived_entities = entities_retrivel(docs, collection_name, client)
         entities = set()
-        for h in top_context:
+        for h in retrived_entities:
             # Handle entities that already have name & type
             for ent in h.get("entities", []):
                 if isinstance(ent, dict):
