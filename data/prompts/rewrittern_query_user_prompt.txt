@@ -18,5 +18,6 @@ Instructions:
 # Output Rules:
 - Format split queries as:
   query1| query2| query3|...
+-Don't Add new lines and other unwanted Symbols then the one | present in the output
 - Output should only be in the above format — no extra text.
 - The splited query should be in such a way that each query should represent what its needs to do, don't add sperate explanation after that just keep the queries alone.

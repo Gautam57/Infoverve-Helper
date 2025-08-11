@@ -104,20 +104,34 @@ def query_neo4j_for_entities(entities, hops=1, top_n=20):
     names = ["Concept", "Widget", "Section"]
 
     query = """
-    UNWIND $names AS label
-    MATCH (e:`${label}`)
-    OPTIONAL MATCH (e)-[r]-(m)
-    RETURN e.name AS head, type(r) AS rel, m.name AS tail, COUNT(*) AS freq
-    LIMIT $limit
-    """
+            CALL {
+                    UNWIND $entities AS ent
+                    MATCH (e:`Concept` {name: ent[0]})-[r]-(m)
+                    WHERE ent[1] = 'Concept'
+                    RETURN e.name AS head, type(r) AS rel, m.name AS tail, COUNT(*) AS freq
+                    UNION
+                    UNWIND $entities AS ent
+                    MATCH (e:`Widget` {name: ent[0]})-[r]-(m)
+                    WHERE ent[1] = 'Widget'
+                    RETURN e.name AS head, type(r) AS rel, m.name AS tail, COUNT(*) AS freq
+                    UNION
+                    UNWIND $entities AS ent
+                    MATCH (e:`Section` {name: ent[0]})-[r]-(m)
+                    WHERE ent[1] = 'Section'
+                    RETURN e.name AS head, type(r) AS rel, m.name AS tail, COUNT(*) AS freq
+                }
+                RETURN head, rel, tail, freq
+                ORDER BY freq DESC
+            LIMIT $limit
+
+            """
 
     with driver.session() as session:
-        res = session.run(query, names=names, limit=top_n)
-        triplets = []
-        for row in res:
-            if row["rel"]:  # skip if no relationship
-                triplets.append((row["head"], row["rel"], row["tail"]))
+        res = session.run(query, entities=entities, limit=20)
+        triplets = [(row["head"], row["rel"], row["tail"]) for row in res]
 
+    # print(triplets)
+    logging.info(triplets)
     logging.info(f"Retrieved {len(triplets)} triplets from Neo4j.")
     return triplets
 
@@ -129,12 +143,15 @@ def rewrite_query_with_docs(llm, original_query, docs):
         logging.info("Top context prepared for query rewriting.")
         entities = set()
         for h in top_context:
-            for ent in h.get("entities", []) or h.get("terminologies", []):
-                entities.add(ent)
+            # Handle entities that already have name & type
+            for ent in h.get("entities", []):
+                if isinstance(ent, dict):
+                    entities.add((ent.get("name", ""), ent.get("type", "")))
+          
         # Query Neo4j for related facts
-        neo_triplets = query_neo4j_for_entities(list(entities), top_n=50)
+        neo_triplets = query_neo4j_for_entities(list(entities), top_n=20)
 
-        logging.info(f"Retrieved {len(neo_triplets)} related triplets from Neo4j.")
+        # logging.info(f"Retrieved {len(neo_triplets)} related triplets from Neo4j.")
 
         kg_lines = [f"{h} —[{r}]→ {t}" for (h, r, t) in neo_triplets]
         kg_text = "\n".join(kg_lines)
@@ -247,7 +264,7 @@ else:
 
     # logging.info collection names
     for collection in collections.collections:
-        if collection.name == "infoverve_helper_docs_hybrid":
+        if collection.name == "infoverve_docs_kg_hybrid":
             collection_name = collection.name
             break
     logging.info(f"Using collection: {collection_name}")
