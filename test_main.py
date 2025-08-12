@@ -78,7 +78,7 @@ def llmcontextBuilder(docs,collection_name, client):
                 ids=[point_id],
                 with_payload=True,
             )
-            logging.info(result)
+            # logging.info(result)
             logging.info(f"Retrieved result for point ID: {point_id}")
             context_with_metadata = {"page_content": result[0].payload.get("page_content", ""),
                                         "url": result[0].payload.get("url", ""),
@@ -100,7 +100,7 @@ def llmcontextBuilder(docs,collection_name, client):
 
 def entities_retrivel(docs,collection_name, client):
     entities = []
-    logging.info("Building context with metadata from documents...")
+    logging.info("Retrieving entities and triplets from documents...")
     for doc in docs:
         # logging.info(doc)
         point_id = doc[0].metadata.get("_id")  # assuming you stored point ID
@@ -110,7 +110,7 @@ def entities_retrivel(docs,collection_name, client):
                 ids=[point_id],
                 with_payload=True,
             )
-            logging.info(result)
+            # logging.info(result)
             logging.info(f"Retrieved result for point ID: {point_id}")
             entities_triplets = {
                 "entities": result[0].payload.get("entities", []),
@@ -204,6 +204,9 @@ def rewrite_query_with_docs(llm, original_query, docs):
         messages = [SystemMessage(content=rewritten_query_system_prompt), HumanMessage(content=rewritten_query_user_prompt)]
         response = llm(messages)
         rewritten = response.content.strip()
+        if len(rewritten.split("|")) < 2:
+            logging.warning("Rewritten query does not contain multiple parts, using original query.")
+            rewritten = original_query
     except Exception as e:
         logging.error(f"Error during query rewriting: {str(e)}")
         rewritten = original_query  # fallback to original query if error

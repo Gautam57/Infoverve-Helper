@@ -1,23 +1,27 @@
 Documentation: {top_context}
 Original Query: {original_query}
 Knowledge Graph Facts:{kg_text}
-Rewritten Query:
+Rewritten Query: query1| query2| query3|... or user query with a little enhancement for semantic search
+
+Query Conditions:
+- Only split queries when it enhances clarity. If simple, return a single rewritten query.
+If the user query is complex then follow the Instructions 
 
 Instructions:
 - Before rewriting, always consider the context of automation-related activities provided in {activities}. Ensure the rewritten queries are relevant and aligned with these activities.
 - Do not create new activities, workflows, or queries beyond what the user provided. Stay strictly within the original intent.
 - Rewrite queries for clarity and specificity. If complex, split them into well-defined, standalone queries.
 - Add necessary details to guide usage of the product/system — even for simple queries.
-- Only split queries when it enhances clarity. If simple, return a single rewritten query.
-- Avoid adding any extra queries or over-splitting.
 - The number of rewritten queries should match the complexity of the original input.
-- Always include a brief explanation on how to use the product or system in the context of automation.
-- Before any workflow starts i needs one or more Datasource to use it as a database of tables which contians required data.
 - Use the documentation and the knowledge graph facts to answer the user. Cite sources when possible by URL or title.
 
-# Output Rules:
+Output Rules:
 - Format split queries as:
   query1| query2| query3|...
 -Don't Add new lines and other unwanted Symbols then the one | present in the output
 - Output should only be in the above format — no extra text.
 - The splited query should be in such a way that each query should represent what its needs to do, don't add sperate explanation after that just keep the queries alone.
+- Avoid adding any extra queries or over-splitting.
+
+Infoverve Conditions:
+-Before any workflow starts i needs one or more Datasource to use it as a database of tables which contians required data.

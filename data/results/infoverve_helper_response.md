@@ -1,82 +1,69 @@
-Let's break down how to create a workflow in Infoveave to execute your Oracle DB query and send the results via email every morning.
+To create a workflow that runs a query from an Oracle DB and sends the results as an email report, you'll use two key activities: **Execute Query** and **Send Email**.
 
-**1. The `Execute Query` Activity**
+**1. Execute Query:**
 
-The `Execute Query` activity is your gateway to retrieving data from your Oracle database. Here's how to use it:
+This activity allows you to run SQL queries against various data sources, including Oracle databases. 
 
-* **Connection:** First, you'll need to establish a connection to your Oracle database within Infoveave. This involves providing connection details like the database server address, port, username, and password.
+* **Purpose:**  Fetch data from your Oracle DB by executing SQL queries.
+* **Use Cases:**
+    * Retrieve real-time data for dashboards or reporting.
+    * Modify and reshape data within your workflow.
+* **Key Features:**
+    * **Data Source Connectivity:** Connect to your Oracle DB using a pre-configured connection.
+    * **SQL Query Execution:** Execute your SQL query to retrieve specific data.
+    * **Result Handling:** Receive the query results as a tabular output, which you can then use in subsequent activities.
 
-* **Query:**  This is where you input your SQL query.  For example, if you want to retrieve customer names and their latest order dates, your query might look like this:
+**Configuration:**
 
-   ```sql
-   SELECT customer_name, MAX(order_date) AS latest_order
-   FROM customers
-   JOIN orders ON customers.customer_id = orders.customer_id
-   GROUP BY customer_name;
-   ```
+* **Connection:** Select the Oracle DB connection you've already set up in Infoveave.
+* **Query:** Enter your SQL query. For example, to retrieve all customers from a table named "customers":
 
-* **Output:** The `Execute Query` activity will return the results of your query as a tabular dataset. This data will be available for use in subsequent activities within your workflow.
+```sql
+SELECT * FROM customers;
+```
 
-**2. The `Send Email` Activity**
+* **Output:** Choose how you want to handle the results. You might want to store them in an in-memory table for further processing or save them to a file.
 
-Now, let's configure the `Send Email` activity to deliver the query results to your customer:
+**2. Send Email:**
 
-* **Connection:** Choose the email server connection you want to use. Infoveave supports various options like OAuth connections for Gmail or Outlook, or SMTP connections for other email providers.
+This activity allows you to compose and send emails as part of your workflow.
 
-* **Recipient:** Specify the email address(es) of your customer(s). You can use a static email address or dynamically pull it from your input data.
+* **Dynamic Emailing:** Personalize emails based on the data flowing through your workflow.
+* **Templates:** Use pre-designed Infoveave templates for consistent branding.
 
-* **Subject:** Craft a clear and concise subject line for your email.
+**Use Cases:**
 
-* **Content:**  This is where you'll format the email body. You can use plain text or HTML.  Here's an example using HTML to present the query results in a table:
+* Send personalized communications based on incoming data.
+* Attach generated reports (like the output from the Execute Query activity) to emails.
 
-   ```html
-   <h2>Customer Order Summary</h2>
-   <table>
-     <thead>
-       <tr>
-         <th>Customer Name</th>
-         <th>Latest Order Date</th>
-       </tr>
-     </thead>
-     <tbody>
-       <!--  Infoveave will dynamically insert the query results here -->
-     </tbody>
-   </table>
-   ```
+**Configuration:**
 
-* **Attachments:** If you need to include additional files with your email, you can attach them here.
+* **Connection:** Specify the mail server connection to use (either OAuth or SMTP).
+* **Use Default Credentials:** If enabled, Infoveave will use its default email credentials. Disable this to use custom authentication.
+* **Email To Address, CC Address, BCC Address:** Define static recipient addresses.
+* **Subject:** Set the email subject. You can use static text or map it from input data.
+* **Content:** Enter the email body. Support is provided for both plain text and HTML formatting.
+* **Attachment Name, Sheet Name:** Specify the attachment file name and worksheet to use for formatting the attachment content.
+* **Send Data In Email Body:** Include input data as a formatted table within the email body.
 
-**Putting it Together: Your Automated Workflow**
+**Putting it Together:**
 
-1. **Start:** Your workflow begins with a trigger. For daily execution, you'd use a "Schedule" trigger set to run every morning at your desired time.
+1. **Execute Query:** Run your SQL query against the Oracle DB and store the results.
+2. **Send Email:**
+   * Set the recipient addresses.
+   * Compose the email subject and body.
+   * Attach the output from the Execute Query activity as a file.
 
-2. **Execute Query:** The workflow then executes your `Execute Query` activity, retrieving the data from your Oracle database.
+**Example Workflow:**
 
-3. **Send Email:** Finally, the `Send Email` activity sends the email to your customer, dynamically populating the email body with the query results.
+Imagine you want to send a monthly sales report to your sales team.
 
-**Example Workflow**
+1. **Execute Query:** Retrieve sales data for the current month from your Oracle DB.
+2. **Send Email:**
+   * Send the email to your sales team's addresses.
+   * Set the subject to "Monthly Sales Report - [Month Year]".
+   * Include a summary of the sales figures in the email body.
+   * Attach the sales data as a CSV file.
 
-Let's say you want to send a daily email with the top 5 selling products from your database.
-
-1. **Trigger:** Schedule trigger to run daily at 8:00 AM.
-2. **Execute Query:**
-   * Connection: Oracle database connection.
-   * Query: 
-     ```sql
-     SELECT product_name, SUM(quantity_sold) AS total_sold
-     FROM sales
-     GROUP BY product_name
-     ORDER BY total_sold DESC
-     LIMIT 5;
-     ```
-3. **Send Email:**
-   * Recipient: `customer@example.com`
-   * Subject: `Daily Top Selling Products`
-   * Content: HTML template with a table displaying the product name and total sold.
-
-**Important Notes:**
-
-* **Error Handling:**  Consider adding error handling to your workflow to gracefully handle any issues with the database connection or email sending.
-* **Security:**  Always store sensitive database credentials securely and avoid hardcoding them directly into your workflow.
 
 
